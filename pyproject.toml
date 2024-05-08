@@ -1,0 +1,40 @@
+[project]
+name = "compe"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "yashikota", email = "52403688+yashikota@users.noreply.github.com" }
+]
+dependencies = [
+    "torch>=2.2.2",
+    "torchvision>=0.17.2",
+    "torchaudio>=2.2.2",
+    "matplotlib>=3.8.4",
+    "tqdm>=4.66.2",
+    "optuna>=3.6.1",
+    "optuna-dashboard>=0.15.1",
+    "torchinfo>=1.8.0",
+    "datasets>=2.19.0",
+    "pandas>=2.2.2",
+    "pillow>=10.3.0",
+    "pyarrow>=16.0.0",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "black>=24.4.2",
+    "isort>=5.13.2",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/compe"]
