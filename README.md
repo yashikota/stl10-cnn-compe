@@ -1,4 +1,4 @@
-# cnn-stl10-compe
+# stl10-cnn-compe
 
 accuracy: 
 
