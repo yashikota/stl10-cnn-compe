@@ -85,7 +85,13 @@ class TrainDataset(Dataset):
             self._convert_cifar_label
         )
         self.cats_vs_dogs_train["label"] = self.cats_vs_dogs_train["label"].apply(
-            self._convert_cats_vs_dogs_label
+            self._convert_cat_dog_label
+        )
+        self.oxford_iiit_pet_train["label"] = self.oxford_iiit_pet_train["label"].apply(
+            self._convert_cat_dog_label
+        )
+        self.oxford_iiit_pet_test["label"] = self.oxford_iiit_pet_test["label"].apply(
+            self._convert_cat_dog_label
         )
         self.monkey_species_collection_train["label"] = (
             self.monkey_species_collection_train["label"].apply(
@@ -161,7 +167,7 @@ class TrainDataset(Dataset):
         else:
             return label
 
-    def _convert_cats_vs_dogs_label(self, label):
+    def _convert_cat_dog_label(self, label):
         return 3 if label == 0 else 5
 
     def _convert_horse2zebra_label(self, _):
