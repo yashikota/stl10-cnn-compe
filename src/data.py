@@ -94,14 +94,14 @@ class TrainDataset(Dataset):
             self._convert_cat_dog_label
         )
         self.monkey_species_collection_train["label"] = (
-            self.monkey_species_collection_train["label"].apply(
-                self._convert_monkey_label
-            )
+            self.monkey_species_collection_train[
+                "label"
+            ].apply(self._convert_monkey_label)
         )
         self.monkey_species_collection_test["label"] = (
-            self.monkey_species_collection_test["label"].apply(
-                self._convert_monkey_label
-            )
+            self.monkey_species_collection_test[
+                "label"
+            ].apply(self._convert_monkey_label)
         )
         self.imagenet_monkey_train["label"] = self.imagenet_monkey_train["label"].apply(
             self._convert_monkey_label

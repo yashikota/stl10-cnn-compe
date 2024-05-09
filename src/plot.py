@@ -3,8 +3,7 @@ import numpy as np
 
 
 def loss_acc_plot(
-    uid,
-    name,
+    uuid,
     train_loss_history,
     train_accuracy_history,
     test_loss_history,
@@ -36,13 +35,13 @@ def loss_acc_plot(
     axes[1, 1].set_ylabel("accuracy")
     axes[1, 1].set_title("Test Accuracy")
 
-    fig.suptitle(f"{uid}", fontsize=16)
+    fig.suptitle(f"{uuid}", fontsize=16)
     fig.tight_layout()
-    plt.savefig(f"result/{uid}/{name}.png")
+    plt.savefig(f"result/{uuid}/loss_acc.png")
     plt.close()
 
 
-def plot_confusion_matrix(uid, name, cm):
+def plot_confusion_matrix(uuid, cm):
     labels = [
         "airplane",
         "bird",
@@ -57,7 +56,7 @@ def plot_confusion_matrix(uid, name, cm):
     ]
 
     fig = plt.figure(figsize=(8, 6))
-    fig.suptitle(uid, fontsize=14, y=0.95)
+    fig.suptitle(uuid, fontsize=14, y=0.95)
 
     ax = fig.add_subplot(111)
     ax.matshow(cm, cmap="coolwarm")
@@ -74,5 +73,5 @@ def plot_confusion_matrix(uid, name, cm):
     ax.set_ylabel("Correct", fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(f"result/{uid}/{name}.png", bbox_inches="tight")
+    plt.savefig(f"result/{uuid}/matrix.png", bbox_inches="tight")
     plt.close()

@@ -1,16 +1,15 @@
-import datetime
 import os
 import random
-import uuid
 
 import numpy as np
 import optuna
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torchvision.transforms import v2
+from tqdm import tqdm
+from uuid_extensions import uuid7str
 
 from data import TestDataset, TrainDataset
 from plot import loss_acc_plot, plot_confusion_matrix
@@ -85,15 +84,21 @@ def load_data(batch):
 
 
 def objective(trial):
-    trial.set_user_attr("uuid", uid)
+    device = torch.device("cuda")
+    epochs = 30
+
+    uuid = uuid7str()
+    os.makedirs(f"result/{uuid}", exist_ok=True)
+
+    # 自身のソースコードをコピー
+    os.system(f"cp {__file__} result/{uuid}/source.py")
+
+    trial.set_user_attr("uuid", uuid)
     trial.set_user_attr("epochs", epochs)
-    trial.set_user_attr("memo", memo)
 
     # 学習結果の保存用
-    train_loss_history = []
-    train_accuracy_history = []
-    test_loss_history = []
-    test_accuracy_history = []
+    train_loss_history, train_accuracy_history = [], []
+    test_loss_history, test_accuracy_history = [], []
 
     # ハイパーパラメータの設定
     batch_size = 128
@@ -129,10 +134,11 @@ def objective(trial):
         optimizer, mode="min", factor=0.1, patience=5
     )
 
-    for i in tqdm(range(epochs)):
+    for _ in tqdm(range(epochs)):
         # 学習
         model.train()
         accuracy = 0.0
+        max_accuracy = 0.0
 
         for data, target in data_loader["train"]:
             data, target = data.to(device), target.to(device)
@@ -174,38 +180,23 @@ def objective(trial):
 
         scheduler.step(test_loss)
 
-        plot_confusion_matrix(
-            uid=uid, name="matrix", cm=confusion_matrix.cpu().numpy()
-        )
+        if accuracy > max_accuracy:
+            max_accuracy = accuracy
+
+            torch.save(model.state_dict(), f"result/{uuid}/params.pth")
+            torch.save(model, f"result/{uuid}/model.pth")
+
+            with open(f"result/{uuid}/{str(max_accuracy)}", "w") as f:
+                f.write(str(test_accuracy_history.index(max_accuracy)))
+
+        plot_confusion_matrix(uuid, confusion_matrix.cpu().numpy())
         loss_acc_plot(
-            uid=uid,
-            name="loss_acc",
-            train_loss_history=train_loss_history,
-            train_accuracy_history=train_accuracy_history,
-            test_loss_history=test_loss_history,
-            test_accuracy_history=test_accuracy_history,
+            uuid,
+            train_loss_history,
+            train_accuracy_history,
+            test_loss_history,
+            test_accuracy_history,
         )
-
-        if accuracy > 0.9:
-            torch.save(model.state_dict(), f"result/{uid}/{str(accuracy)}_{str(i)}.pth")
-            torch.save(model, f"result/{uid}/{str(accuracy)}_{str(i)}.pth")
-
-    accuracy = max(test_accuracy_history)
-
-    with open(f"result/{uid}/{str(accuracy)}", "w") as f:
-        f.write(str(test_accuracy_history.index(accuracy)))
-
-    plot_confusion_matrix(
-        uid=uid, name=f"matrix_{str(accuracy)}", cm=confusion_matrix.cpu().numpy()
-    )
-    loss_acc_plot(
-        uid=uid,
-        name=f"loss_acc_{str(accuracy)}",
-        train_loss_history=train_loss_history,
-        train_accuracy_history=train_accuracy_history,
-        test_loss_history=test_loss_history,
-        test_accuracy_history=test_accuracy_history,
-    )
 
     return accuracy
 
@@ -222,36 +213,10 @@ def torch_fix_seed(seed=413):
     torch.use_deterministic_algorithms = True
 
 
-def init():
-    global uid, epochs, device, memo
-
-    torch_fix_seed()
-    uid = str(uuid.uuid4())
-    device = torch.device("cuda")
-
-    os.makedirs(f"result/{uid}", exist_ok=True)
-
-    memo = "best"
-
-    # memoを保存
-    with open(f"result/{uid}/{memo}", "w") as f:
-        f.write(memo)
-
-    # 実行時時刻を保存
-    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(f"result/{uid}/{time}", "w") as f:
-        f.write(time)
-
-    # 自身のソースコードをコピー
-    os.system(f"cp {__file__} result/{uid}/main.py")
-
-
 if __name__ == "__main__":
-    init()
+    torch_fix_seed()
 
     n_trials = 10
-    epochs = 50
-
     study = optuna.create_study(
         direction="maximize",
         storage="sqlite:///db.sqlite3",
