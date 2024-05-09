@@ -190,7 +190,6 @@ def objective(trial):
         )
 
         if accuracy > max_accuracy:
-            print(f"{accuracy}, {max_accuracy}")
             if os.path.exists(f"result/{uuid}/{str(max_accuracy)}"):
                 os.remove(f"result/{uuid}/{str(max_accuracy)}")
 
@@ -220,7 +219,7 @@ def torch_fix_seed(seed=413):
 if __name__ == "__main__":
     torch_fix_seed()
 
-    n_trials = 10
+    n_trials = 100
     study = optuna.create_study(
         direction="maximize",
         storage="sqlite:///db.sqlite3",
