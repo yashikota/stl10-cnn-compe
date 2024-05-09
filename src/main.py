@@ -134,11 +134,11 @@ def objective(trial):
         optimizer, mode="min", factor=0.1, patience=5
     )
 
+    # 学習
+    max_accuracy = 0.0
     for _ in tqdm(range(epochs)):
-        # 学習
         model.train()
         accuracy = 0.0
-        max_accuracy = 0.0
 
         for data, target in data_loader["train"]:
             data, target = data.to(device), target.to(device)
@@ -180,15 +180,6 @@ def objective(trial):
 
         scheduler.step(test_loss)
 
-        if accuracy > max_accuracy:
-            max_accuracy = accuracy
-
-            torch.save(model.state_dict(), f"result/{uuid}/params.pth")
-            torch.save(model, f"result/{uuid}/model.pth")
-
-            with open(f"result/{uuid}/{str(max_accuracy)}", "w") as f:
-                f.write(str(test_accuracy_history.index(max_accuracy)))
-
         plot_confusion_matrix(uuid, confusion_matrix.cpu().numpy())
         loss_acc_plot(
             uuid,
@@ -197,6 +188,19 @@ def objective(trial):
             test_loss_history,
             test_accuracy_history,
         )
+
+        if accuracy > max_accuracy:
+            print(f"{accuracy}, {max_accuracy}")
+            if os.path.exists(f"result/{uuid}/{str(max_accuracy)}"):
+                os.remove(f"result/{uuid}/{str(max_accuracy)}")
+
+            max_accuracy = accuracy
+
+            torch.save(model.state_dict(), f"result/{uuid}/params.pth")
+            torch.save(model, f"result/{uuid}/model.pth")
+
+            with open(f"result/{uuid}/{str(max_accuracy)}", "w") as f:
+                f.write(str(test_accuracy_history.index(max_accuracy)))
 
     return accuracy
 
