@@ -1,6 +1,6 @@
 # stl10-cnn-compe
 
-accuracy: 
+accuracy: 0.904625
 
-![loss_acc]()
-![matrix]()
+![loss_acc](img/loss_acc.png)
+![matrix](img/matrix.png)
