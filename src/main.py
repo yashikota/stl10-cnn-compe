@@ -95,19 +95,15 @@ def objective(trial):
     test_loss_history = []
     test_accuracy_history = []
 
-    learning_rate = 0.000358018666556301
-    weight_decay = 0.00010000000000000002
-
+    # ハイパーパラメータの設定
     batch_size = 128
     optimizer_name = "Adam"
-
-    # ハイパーパラメータの設定
-    # learning_rate = trial.suggest_float(
-    #     "learning_rate", 1e-5, 9e-4, log=True
-    # )  # 0.00001 ~ 0.0009
-    # weight_decay = trial.suggest_float(
-    #     "weight_decay", 1e-6, 9e-4, log=True
-    # )  # 0.000001 ~ 0.0009
+    learning_rate = trial.suggest_float(
+        "learning_rate", 1e-5, 9e-4, log=True
+    )  # 0.00001 ~ 0.0009
+    weight_decay = trial.suggest_float(
+        "weight_decay", 1e-6, 9e-4, log=True
+    )  # 0.000001 ~ 0.0009
 
     # batch_size = trial.suggest_categorical("batch_size", [128, 128, 256])
     # optimizer_name = trial.suggest_categorical(
@@ -179,18 +175,18 @@ def objective(trial):
         scheduler.step(test_loss)
 
         plot_confusion_matrix(
-            uid=uid, name=f"matrix", cm=confusion_matrix.cpu().numpy()
+            uid=uid, name="matrix", cm=confusion_matrix.cpu().numpy()
         )
         loss_acc_plot(
             uid=uid,
-            name=f"loss_acc",
+            name="loss_acc",
             train_loss_history=train_loss_history,
             train_accuracy_history=train_accuracy_history,
             test_loss_history=test_loss_history,
             test_accuracy_history=test_accuracy_history,
         )
 
-        if accuracy > 0.89:
+        if accuracy > 0.9:
             torch.save(model.state_dict(), f"result/{uid}/{str(accuracy)}_{str(i)}.pth")
             torch.save(model, f"result/{uid}/{str(accuracy)}_{str(i)}.pth")
 
@@ -253,8 +249,8 @@ def init():
 if __name__ == "__main__":
     init()
 
-    n_trials = 1
-    epochs = 30
+    n_trials = 10
+    epochs = 50
 
     study = optuna.create_study(
         direction="maximize",
