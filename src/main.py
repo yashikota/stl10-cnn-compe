@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from torchvision.transforms import v2
 
 from data import TestDataset, TrainDataset
 from plot import loss_acc_plot, plot_confusion_matrix
@@ -40,7 +41,7 @@ class NeuralNetwork(torch.nn.Module):
             )
 
         self.fc_block = nn.Sequential(
-            nn.Linear(in_features=int(512 * 3 * 3), out_features=1024),
+            nn.Linear(in_features=512 * 3 * 3, out_features=1024),
             nn.BatchNorm1d(num_features=1024),
             nn.SiLU(inplace=True),
             nn.Linear(in_features=1024, out_features=512),
@@ -66,6 +67,15 @@ def load_data(batch):
         train_dataset, batch_size=batch, shuffle=True, num_workers=4, pin_memory=True
     )
 
+    # CutMix or Mixup
+    num_classes = 10
+    cutmix = v2.CutMix(num_classes=num_classes)
+    mixup = v2.MixUp(num_classes=num_classes, alpha=0.8)
+    cutmix_or_mixup = v2.RandomChoice([cutmix, mixup])
+
+    for images, labels in train_loader:
+        images, labels = cutmix_or_mixup(images, labels)
+
     test_dataset = TestDataset()
     test_loader = DataLoader(
         test_dataset, batch_size=batch, shuffle=False, num_workers=4, pin_memory=True
@@ -85,15 +95,19 @@ def objective(trial):
     test_loss_history = []
     test_accuracy_history = []
 
-    # ハイパーパラメータの設定
+    learning_rate = 0.000358018666556301
+    weight_decay = 0.00010000000000000002
+
     batch_size = 128
     optimizer_name = "Adam"
-    learning_rate = trial.suggest_float(
-        "learning_rate", 1e-4, 9e-3, log=True
-    )  # 0.001 ~ 0.009
-    weight_decay = trial.suggest_float(
-        "weight_decay", 1e-6, 9e-4, log=True
-    )  # 0.000001 ~ 0.0009
+
+    # ハイパーパラメータの設定
+    # learning_rate = trial.suggest_float(
+    #     "learning_rate", 1e-5, 9e-4, log=True
+    # )  # 0.00001 ~ 0.0009
+    # weight_decay = trial.suggest_float(
+    #     "weight_decay", 1e-6, 9e-4, log=True
+    # )  # 0.000001 ~ 0.0009
 
     # batch_size = trial.suggest_categorical("batch_size", [128, 128, 256])
     # optimizer_name = trial.suggest_categorical(
@@ -119,11 +133,10 @@ def objective(trial):
         optimizer, mode="min", factor=0.1, patience=5
     )
 
-    for _ in tqdm(range(epochs)):
+    for i in tqdm(range(epochs)):
         # 学習
         model.train()
         accuracy = 0.0
-        max_accuracy = 0.0
 
         for data, target in data_loader["train"]:
             data, target = data.to(device), target.to(device)
@@ -165,27 +178,26 @@ def objective(trial):
 
         scheduler.step(test_loss)
 
-        max_accuracy = max(max_accuracy, accuracy)
-
         plot_confusion_matrix(
-            uid=uid, name="matrix", cm=confusion_matrix.cpu().numpy()
+            uid=uid, name=f"matrix", cm=confusion_matrix.cpu().numpy()
         )
         loss_acc_plot(
             uid=uid,
-            name="loss_acc",
+            name=f"loss_acc",
             train_loss_history=train_loss_history,
             train_accuracy_history=train_accuracy_history,
             test_loss_history=test_loss_history,
             test_accuracy_history=test_accuracy_history,
         )
 
-        if max_accuracy > 0.88 and max_accuracy == accuracy:
-            torch.save(model.state_dict(), f"result/{uid}/{str(accuracy)}_{uid}.pth")
-            torch.save(model, f"result/{uid}/{str(accuracy)}_{uid}.pth")
+        if accuracy > 0.89:
+            torch.save(model.state_dict(), f"result/{uid}/{str(accuracy)}_{str(i)}.pth")
+            torch.save(model, f"result/{uid}/{str(accuracy)}_{str(i)}.pth")
 
-    # accuracyを保存
+    accuracy = max(test_accuracy_history)
+
     with open(f"result/{uid}/{str(accuracy)}", "w") as f:
-        f.write(train_accuracy_history.index(max(train_accuracy_history)))
+        f.write(str(test_accuracy_history.index(accuracy)))
 
     plot_confusion_matrix(
         uid=uid, name=f"matrix_{str(accuracy)}", cm=confusion_matrix.cpu().numpy()
@@ -223,7 +235,7 @@ def init():
 
     os.makedirs(f"result/{uid}", exist_ok=True)
 
-    memo = "run"
+    memo = "best"
 
     # memoを保存
     with open(f"result/{uid}/{memo}", "w") as f:
@@ -241,8 +253,8 @@ def init():
 if __name__ == "__main__":
     init()
 
-    n_trials = 20
-    epochs = 20
+    n_trials = 1
+    epochs = 30
 
     study = optuna.create_study(
         direction="maximize",
