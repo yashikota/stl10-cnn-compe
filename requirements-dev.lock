@@ -17,15 +17,12 @@ alembic==1.13.1
     # via optuna
 attrs==23.2.0
     # via aiohttp
-black==24.4.2
 bottle==0.12.25
     # via optuna-dashboard
 certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-click==8.1.7
-    # via black
 colorlog==6.8.2
     # via optuna
 contourpy==1.2.1
@@ -78,8 +75,6 @@ multidict==6.0.5
     # via yarl
 multiprocess==0.70.16
     # via datasets
-mypy-extensions==1.0.0
-    # via black
 networkx==3.3
     # via torch
 numpy==1.26.4
@@ -126,7 +121,6 @@ optuna==3.6.1
 optuna-dashboard==0.15.1
     # via compe
 packaging==24.0
-    # via black
     # via datasets
     # via huggingface-hub
     # via matplotlib
@@ -135,16 +129,11 @@ packaging==24.0
 pandas==2.2.2
     # via compe
     # via datasets
-pathspec==0.12.1
-    # via black
 pillow==10.3.0
     # via compe
     # via matplotlib
     # via torchvision
-platformdirs==4.2.1
-    # via black
 pyarrow==16.0.0
-    # via compe
     # via datasets
 pyarrow-hotfix==0.6
     # via datasets
@@ -181,8 +170,6 @@ torch==2.3.0
     # via torchvision
 torchaudio==2.3.0
     # via compe
-torchinfo==1.8.0
-    # via compe
 torchvision==0.18.0
     # via compe
 tqdm==4.66.4
@@ -199,6 +186,8 @@ tzdata==2024.1
     # via pandas
 urllib3==2.2.1
     # via requests
+uuid7==0.1.0
+    # via compe
 xxhash==3.4.1
     # via datasets
 yarl==1.9.4

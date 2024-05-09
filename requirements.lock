@@ -133,7 +133,6 @@ pillow==10.3.0
     # via matplotlib
     # via torchvision
 pyarrow==16.0.0
-    # via compe
     # via datasets
 pyarrow-hotfix==0.6
     # via datasets
@@ -170,8 +169,6 @@ torch==2.3.0
     # via torchvision
 torchaudio==2.3.0
     # via compe
-torchinfo==1.8.0
-    # via compe
 torchvision==0.18.0
     # via compe
 tqdm==4.66.4
@@ -188,6 +185,8 @@ tzdata==2024.1
     # via pandas
 urllib3==2.2.1
     # via requests
+uuid7==0.1.0
+    # via compe
 xxhash==3.4.1
     # via datasets
 yarl==1.9.4
