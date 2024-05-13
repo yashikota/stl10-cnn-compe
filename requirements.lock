@@ -51,6 +51,7 @@ greenlet==3.0.3
     # via sqlalchemy
 huggingface-hub==0.23.0
     # via datasets
+    # via timm
 idna==3.7
     # via requests
     # via yarl
@@ -147,9 +148,12 @@ pyyaml==6.0.1
     # via datasets
     # via huggingface-hub
     # via optuna
+    # via timm
 requests==2.31.0
     # via datasets
     # via huggingface-hub
+safetensors==0.4.3
+    # via timm
 scikit-learn==1.4.2
     # via optuna-dashboard
 scipy==1.13.0
@@ -163,14 +167,18 @@ sympy==1.12
     # via torch
 threadpoolctl==3.5.0
     # via scikit-learn
+timm==0.9.16
+    # via compe
 torch==2.3.0
     # via compe
+    # via timm
     # via torchaudio
     # via torchvision
 torchaudio==2.3.0
     # via compe
 torchvision==0.18.0
     # via compe
+    # via timm
 tqdm==4.66.4
     # via compe
     # via datasets

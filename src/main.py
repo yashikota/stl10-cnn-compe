@@ -6,12 +6,12 @@ import optuna
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from timm.scheduler import CosineLRScheduler
 from torch.utils.data import DataLoader
-from torchvision.transforms import v2
 from tqdm import tqdm
 from uuid_extensions import uuid7str
 
-from data import TestDataset, TrainDataset
+from data import TestDataset, TrainDataset, cutmix_mixup
 from plot import loss_acc_plot, plot_confusion_matrix
 
 
@@ -67,11 +67,7 @@ def load_data(batch):
     )
 
     # CutMix or Mixup
-    num_classes = 10
-    cutmix = v2.CutMix(num_classes=num_classes)
-    mixup = v2.MixUp(num_classes=num_classes, alpha=0.8)
-    cutmix_or_mixup = v2.RandomChoice([cutmix, mixup])
-
+    cutmix_or_mixup = cutmix_mixup(num_classes=10)
     for images, labels in train_loader:
         images, labels = cutmix_or_mixup(images, labels)
 
@@ -130,13 +126,22 @@ def objective(trial):
     criterion = nn.CrossEntropyLoss()
 
     # スケジューラーの定義
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.1, patience=5
+    lr_min = trial.suggest_float("lr_min", 1e-6, 1e-4, log=True)
+    warmup_t = trial.suggest_int("warmup_epochs", 1, 10)
+    warmup_lr_init = trial.suggest_float("warmup_lr", 1e-6, 1e-4, log=True)
+    scheduler = CosineLRScheduler(
+        optimizer,
+        t_initial=epochs,
+        lr_min=lr_min,
+        warmup_t=warmup_t,
+        warmup_lr_init=warmup_lr_init,
     )
 
     # 学習
     max_accuracy = 0.0
-    for _ in tqdm(range(epochs)):
+    for epoch in tqdm(range(epochs)):
+        scheduler.step(epoch)
+
         model.train()
         accuracy = 0.0
 
@@ -177,8 +182,6 @@ def objective(trial):
 
         test_loss_history.append(test_loss)
         test_accuracy_history.append(accuracy)
-
-        scheduler.step(test_loss)
 
         plot_confusion_matrix(uuid, confusion_matrix.cpu().numpy())
         loss_acc_plot(

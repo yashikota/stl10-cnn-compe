@@ -17,6 +17,7 @@ dependencies = [
     "pandas>=2.2.2",
     "pillow>=10.3.0",
     "uuid7>=0.1.0",
+    "timm>=0.9.16",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"

@@ -223,3 +223,11 @@ class TestDataset(Dataset):
         image = self.transform(image)
 
         return image, label
+
+
+def cutmix_mixup(num_classes):
+    cutmix = v2.CutMix(num_classes=num_classes)
+    mixup = v2.MixUp(num_classes=num_classes)
+    cutmix_or_mixup = v2.RandomChoice([cutmix, mixup])
+
+    return cutmix_or_mixup
