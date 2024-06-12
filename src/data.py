@@ -44,6 +44,24 @@ class TrainDataset(Dataset):
         self.imagenet_monkey_train = load_dataset(
             "yashikota/imagenet-monkey", split="train"
         ).to_pandas()
+        self.birds_image_dataset_train = load_dataset(
+            "yashikota/birds-image-dataset", split="train"
+        ).to_pandas()
+        self.birds_image_dataset_test = load_dataset(
+            "yashikota/birds-image-dataset", split="test"
+        ).to_pandas()
+        self.cat_image_dataset_train = load_dataset(
+            "yashikota/cat-image-dataset", split="train"
+        ).to_pandas()
+        self.birds_525_species_image_classification_train = load_dataset(
+            "yashikota/birds-525-species-image-classification", split="train"
+        ).to_pandas()
+        self.birds_525_species_image_classification_test = load_dataset(
+            "yashikota/birds-525-species-image-classification", split="test"
+        ).to_pandas()
+        self.birds_525_species_image_classification_valid = load_dataset(
+            "yashikota/birds-525-species-image-classification", split="validation"
+        ).to_pandas()
 
         # columnを変更
         self.cifar10_train.rename(columns={"img": "image"}, inplace=True)
@@ -112,6 +130,12 @@ class TrainDataset(Dataset):
         self.horse2zebra_test["label"] = self.horse2zebra_test["label"].apply(
             self._convert_horse2zebra_label
         )
+        self.birds_image_dataset_train["label"] = 1
+        self.birds_image_dataset_test["label"] = 1
+        self.cat_image_dataset_train["label"] = 3
+        self.birds_525_species_image_classification_train["label"] = 1
+        self.birds_525_species_image_classification_test["label"] = 1
+        self.birds_525_species_image_classification_valid["label"] = 1
 
         # labelがNoneの行を削除
         self.cifar10_train.dropna(subset=["label"], inplace=True)
