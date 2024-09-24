@@ -81,10 +81,11 @@ def load_data(batch):
 
 def objective(trial):
     device = torch.device("cuda")
-    epochs = 30
+    epochs = 1000
 
     uuid = uuid7str()
     os.makedirs(f"result/{uuid}", exist_ok=True)
+    print(f"uuid: {uuid}")
 
     # 自身のソースコードをコピー
     os.system(f"cp {__file__} result/{uuid}/source.py")
@@ -99,16 +100,17 @@ def objective(trial):
     # ハイパーパラメータの設定
     batch_size = 128
     optimizer_name = "Adam"
+
     learning_rate = trial.suggest_float(
-        "learning_rate", 1e-5, 9e-4, log=True
-    )  # 0.00001 ~ 0.0009
+        "learning_rate", 1e-4, 9e-4, log=True
+    )  # 0.0001 ~ 0.0009
     weight_decay = trial.suggest_float(
         "weight_decay", 1e-6, 9e-4, log=True
     )  # 0.000001 ~ 0.0009
 
     # batch_size = trial.suggest_categorical("batch_size", [128, 128, 256])
     # optimizer_name = trial.suggest_categorical(
-    #     "optimizer", ["Adam", "RMSprop", "Adagrad"]
+    #     "optimizer", ["Adam", "AdamW", "RMSprop"]
     # )
 
     # ネットワークの作成
@@ -127,7 +129,7 @@ def objective(trial):
 
     # スケジューラーの定義
     lr_min = trial.suggest_float("lr_min", 1e-6, 1e-4, log=True)
-    warmup_t = trial.suggest_int("warmup_epochs", 1, 10)
+    warmup_t = trial.suggest_int("warmup_epochs", 10, 20)
     warmup_lr_init = trial.suggest_float("warmup_lr", 1e-6, 1e-4, log=True)
     scheduler = CosineLRScheduler(
         optimizer,

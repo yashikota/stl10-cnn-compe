@@ -81,7 +81,6 @@ class TrainDataset(Dataset):
         self.horse2zebra_test["label"] = 6
 
         # pathをbytesに変換
-        self.cats_vs_dogs_train = self._path_to_bytes(self.cats_vs_dogs_train)
         self.monkey_species_collection_train = self._path_to_bytes(
             self.monkey_species_collection_train
         )
