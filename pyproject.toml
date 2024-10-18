@@ -1,39 +1,20 @@
 [project]
-name = "compe"
+name = "stl10-cnn-compe"
 version = "0.1.0"
 description = "Add your description here"
-authors = [
-    { name = "yashikota", email = "52403688+yashikota@users.noreply.github.com" }
-]
-dependencies = [
-    "torch>=2.2.2",
-    "torchvision>=0.17.2",
-    "torchaudio>=2.2.2",
-    "matplotlib>=3.8.4",
-    "tqdm>=4.66.2",
-    "optuna>=3.6.1",
-    "optuna-dashboard>=0.15.1",
-    "datasets>=2.19.0",
-    "pandas>=2.2.2",
-    "pillow>=10.3.0",
-    "uuid7>=0.1.0",
-    "timm>=0.9.16",
-]
 readme = "README.md"
-requires-python = ">= 3.8"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.rye]
-managed = true
-dev-dependencies = [
-    "isort>=5.13.2",
+requires-python = ">=3.12"
+dependencies = [
+    "datasets>=3.0.1",
+    "matplotlib>=3.9.2",
+    "optuna>=4.0.0",
+    "optuna-dashboard>=0.16.2",
+    "pandas>=2.2.3",
+    "pillow>=11.0.0",
+    "timm>=1.0.11",
+    "torch>=2.5.0",
+    "torchaudio>=2.5.0",
+    "torchvision>=0.20.0",
+    "tqdm>=4.66.5",
+    "uuid7>=0.1.0",
 ]
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/compe"]
