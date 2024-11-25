@@ -81,7 +81,7 @@ def load_data(batch):
 
 def objective(trial):
     device = torch.device("cuda")
-    epochs = 1000
+    epochs = 500
 
     uuid = uuid7str()
     os.makedirs(f"result/{uuid}", exist_ok=True)
